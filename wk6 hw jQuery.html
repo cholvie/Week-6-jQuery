@@ -1,13 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <title>Giphy API</title>
-</head>
+  <meta charset="UTF-8">
+  <title>TV Gifs!</title>
 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.1.1.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" href="assets/css/style.css"> -->
+  <!-- <script type="text/javascript" src="assets/javascript/giphy.js"></script> -->
+  
+</head>
 <body>
-    <!--<img src="https://media.giphy.com/media/CB5naicaKlP0Y/giphy.gif" data-still="https://media.giphy.com/media/CB5naicaKlP0Y/giphy.gif" data-state="still" class="cars"> -->
+
+  <div class=" content">
+    <div class="col-xs-12 col-sm-12 col-md-3 left-column">
+      <div class="page-header">
+        <h1>Car Gifs<br/>
+        <span class="small">Click on a button below to view some cool car gifs</span></h1>
+      </div>  
+      <form class="form-inline">
+        <div class="form-group">
+          <input type="text" class="form-control" id="userInput" placeholder="TV Show or Personality">
+        </div>
+        <button type="submit" class="btn btn-default submit"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Pick</button>
+      </form>
+
+      <div class="buttonArea">
+        
+      </div>
+
+    </div>
+
+    <div class="col-xs-12 col-sm-12 col-md-9 right-column results">
+      <div class="row">
+      
+      </div>
+    </div>
+  </div>
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -16,62 +45,136 @@
     //var APIKey =  mNKeQJYGkCwnqtq2bjRbl2VIrIaVvopp
 
     // Adding click event listen listener to all buttons
-    $("button").on("click", function() {
+   // $("button").on("click", function() {
       
       // Grabbing and storing the data-animal property value from the button
-      var cars = $(this).attr("cars");
+     // var cars = $(this).attr("cars");
+
+      //Create Variables
+  // Array for topics
+  // URL for API call
+  // Variable for clicked button's value to be passed through the API
+
+var topics = ['Porche','BMW','Tesla', 'Mercedes', 'Jeep', 'Lincoln'];
+var url = 'https://api.giphy.com/v1/gifs/search?api_key=mNKeQJYGkCwnqtq2bjRbl2VIrIaVvopp';
 
     //queryURL for Giphy API
-    var queryURL = 'https://api.giphy.com/v1/gifs/search?' + cars + 'api_key=mNKeQJYGkCwnqtq2bjRbl2VIrIaVvopp';
+    //var queryURL = 'https://api.giphy.com/v1/gifs/search?' + cars + 'api_key=mNKeQJYGkCwnqtq2bjRbl2VIrIaVvopp';
 
-    // Performing an AJAX request with the queryURL
-    $.ajax({
-      url: queryURL,
-      method: "GET"
-    })
-    
-    // After data comes back from the request
-    .then(function(response) {
-      console.log(queryURL);
+$(document).ready(function() {
 
-      console.log(response);
 
-      // storing the data from the AJAX request in the results variable
-      var results = response.cars;
 
-      // Looping through each result item
-      for (var i = 0; i < results.length; i++) {
 
-        // Creating and storing a div tag
-        var carsDiv = $("<div>");
+// Create topics from array
+function createTopics() {
 
-         // Creating and storing an image tag
-         var carsImage = $("<img>");
+  // Start list from scratch to prevent any duplicates
+  $(".buttonArea").empty();
+  
+    for (var i = 0; i < topics.length; i++) {
+    var a = $("<button>");
 
-         // Setting the src attribute of the image to a property pulled off the result item
-         carsImage.attr("cars", results[i].images.fixed_height.url);
+    // Adds a class of gif to our button
+    a.addClass("gifButton btn btn-lg btn-default btn-block");
 
-         // Appending the paragraph and image tag to the carDiv
-         carsDiv.append(p);
-         carsDiv.append(carsImage);
+    // Added a data-attribute
+    a.attr("data-name", topics[i]);
+    a.append(topics[i]);
+    $(".buttonArea").append(a);
+  }
+};
 
-         // Prependng the animalDiv to the HTML page in the "#cars" div
-         $("#cars").prepend(carsDiv);
-      }
 
-            $(".cars").on("click", function() {
-       
-        // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
-        var state = $(this).attr("cars");
-       
-        if (state === "still") {
-          $(this).attr("cars", $(this).attr("data-animate"));
-          $(this).attr("data-state", "animate");
-        } else {
-          $(this).attr("cars", $(this).attr("data-still"));
-          $(this).attr("data-state", "still");
-        }
-    });				
+// Run this when button is clicked 
+  // Clear out previous results
+  // Create AJAX call using Giphy api url + value of button clicked
+  // Display gifs with that button value and their rating
+function gifDisplay() {
+
+  $('.results').empty();
+
+  // Add name of Gif list on top
+  $('.results').append('<h2 class="result_title">Now Playing: <span>' + $(this).data('name') + ' Gifs!</span></h2>' );
+
+  // removes blank spaces in names and puts %20 in url
+  url = url + escape($(this).data('name'));
+  console.log(url);
+  // Creates AJAX call for the specific button being clicked
+  $.ajax({
+    url: url,
+    method: "GET"
+  }).done(function(response) {
+    console.log(response);
+    var gif = response.data;
+    for (var i = 0; i < 12; i++) {
+      
+      // Creates a div to hold the gif and appends it to .results class on page (in right-column)
+      var gifDiv = $('<div>');
+      gifDiv.addClass('gif col-md-4 col-xs-12 col-sm-4');
+      gifDiv.append('<img class="gifImg" src='+gif[i].images.fixed_height_still.url + ' data-still=' + gif[i].images.fixed_height_still.url + ' data-animate=' + gif[i].images.fixed_height.url + ' data-state="still"/>');
+      gifDiv.append('<span class="label label-default">Rated: '+gif[i].rating + '</span>');
+      $('.results').append(gifDiv);
+    }
+
+    // Create rows for even height columns
+    var row = $('div.results > div');
+
+    for( var j = 0; j < row.length; j+=3 ) {
+      row.slice(j, j+3).wrapAll('<div class="row"></div>');
+    }
+
+  });
+  // Reset URL Value after everything loads
+  url = 'https://api.giphy.com/v1/gifs/search?api_key=dc6zaTOxFJmzC&limit=20&q=';
+}
+
+// Form input click
+  // Push value of input box into button array
+  // Prevent default function from happening (reload)
+  // Refresh topics
+$('.submit').on('click',function(event) {
+  event.preventDefault();
+  
+
+  if ($('#userInput').val() != '') {
+    var newButton = $('#userInput').val().trim();
+    topics.push(newButton);
+    createTopics();
+  }
+  else {
+    alert("Nothing Entered!");
+    createTopics();
+  }
+  $('#userInput').val("");
+});
+
+
+// Click a button
+
+
+// Adding click event listeners to all elements with a class of "movie"
+$(document).on("click", ".gifButton", gifDisplay);
+
+// When gif is clicked it'll toggle between animated and still
+
+$(document).on('click','.gifImg', function(){
+  var state = $(this).data('state')
+  if (state === 'still') {
+      $(this).attr('src', $(this).attr('data-animate'));
+      $(this).data('state', 'animate');
+    }
+    if (state === 'animate') {
+      $(this).attr('src', $(this).attr('data-still'));
+      $(this).data('state', 'still');
+    }
+});
+
+
+createTopics();
+
+
+});			
 
   </script>
 
